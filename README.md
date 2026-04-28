@@ -143,13 +143,47 @@ ofpayments:
     bundle-name: ofpayments-prod
 ```
 
+## FAPI Advanced + DPoP (v0.2.0)
+
+A v0.2.0 adicionou **sender-constrained tokens via DPoP (RFC 9449)** end-to-end:
+
+```bash
+# 1) cliente PISP requisita token apresentando DPoP proof (assinado por sua chave)
+POST /mock-auth/token
+DPoP: <proof_jwt_assinado_pela_ec_key_do_cliente>
+
+→ { "access_token": "...jwt.com.cnf.jkt...", "token_type": "DPoP", "expires_in": 600 }
+
+# 2) cliente usa o token bound + um novo proof a cada request PISP
+POST /open-banking/payments/v1/consents
+Authorization: DPoP <access_token>
+DPoP: <novo_proof_jwt>
+
+→ filter valida: assinatura do proof, htm=POST, htu=URI, iat<60s, jti único, e
+   thumbprint(jwk_do_proof) == cnf.jkt do access token. Falha qualquer: 401.
+```
+
+Ativar via profile `fapi`:
+
+```bash
+./mvnw spring-boot:run -Dspring-boot.run.profiles=local,simulator,fapi
+```
+
+Sem o profile, comportamento da v0.1.0 (mock auth `permitAll`) — preserva back-compat.
+
+**Roubo de token + replay de outra máquina = 401.** Coberto por test (`replayedTokenFromAnotherKeyIsRejected`).
+
+Detalhes em [ADR 0006 — FAPI Advanced + DPoP](docs/adr/0006-fapi-dpop.md), incluindo trade-offs aceitos e roadmap pra `private_key_jwt`/PAR/JARM/DCR/JWS.
+
 ## Roadmap
 
 - [x] v0.1.0 — Consent flow + Payment Initiation + state machines + simulator + observabilidade
-- [ ] **v0.2.0 — FAPI Advanced + DPoP + DCR (Dynamic Client Registration)** *(prioridade)*
-- [ ] v0.3.0 — JWS detached signature em payloads (ICP-Brasil cert + RFC 7515)
-- [ ] v0.4.0 — Webhook receiver pra status callback assíncrono do holder
-- [ ] v0.5.0 — Suporte a Open Insurance Payments e Pix Automático cross-link
+- [x] **v0.2.0 — DPoP (RFC 9449) sender-constrained tokens + mock auth server in-process**
+- [ ] v0.3.0 — `private_key_jwt` client authentication (RFC 7523) + DCR (Dynamic Client Registration)
+- [ ] v0.4.0 — PAR (Pushed Authorization Requests) + JARM (Authorization Response como JWT)
+- [ ] v0.5.0 — JWS detached signature em payloads (RFC 7515 + cert ICP-Brasil)
+- [ ] v0.6.0 — Webhook receiver pra status callback assíncrono do holder
+- [ ] v0.7.0 — Suporte a Pix Automático cross-link com `pix-automatico-reference`
 - [ ] Persistência durável (Postgres com partitioning) — hoje é in-memory
 - [ ] Idempotência forte com `Idempotency-Key` em todos os POSTs
 - [ ] Conformance test contra a suite oficial do Open Finance Brasil
@@ -162,6 +196,8 @@ ADRs em `docs/adr/`:
 - [0002 — Consent state machine](docs/adr/0002-consent-state-machine.md)
 - [0003 — Payment status mapping (ISO 20022)](docs/adr/0003-payment-status-mapping.md)
 - [0004 — Resilience strategy por grupo](docs/adr/0004-resilience-strategy.md)
+- [0005 — Simulator-as-controller no Spring context](docs/adr/0005-simulator-as-controller.md)
+- [0006 — FAPI Advanced + DPoP](docs/adr/0006-fapi-dpop.md)
 - [0005 — Simulator-as-controller no Spring context](docs/adr/0005-simulator-as-controller.md)
 
 ## Licença
