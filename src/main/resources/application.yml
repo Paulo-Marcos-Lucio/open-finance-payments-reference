@@ -1,0 +1,94 @@
+spring:
+  application:
+    name: open-finance-payments-reference
+  profiles:
+    active: local
+  threads:
+    virtual:
+      enabled: true
+  cache:
+    type: caffeine
+
+server:
+  port: 8082
+  shutdown: graceful
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  tracing:
+    sampling:
+      probability: 1.0
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name},%X{traceId:-},%X{spanId:-}]"
+
+ofpayments:
+  initiator:
+    organisation-id: 11111111-1111-1111-1111-111111111111
+    software-statement-id: 22222222-2222-2222-2222-222222222222
+  holder:
+    base-url: http://localhost:8082/sim
+    connect-timeout: 2s
+    read-timeout: 5s
+  consent:
+    default-validity-minutes: 5
+    max-validity-minutes: 1440
+  payment:
+    settle-delay-ms: 250
+  simulator:
+    failure-rate: 0.0
+    jitter-min-ms: 0
+    jitter-max-ms: 0
+  mtls:
+    enabled: false
+
+resilience4j:
+  retry:
+    instances:
+      holder-consent:
+        max-attempts: 4
+        wait-duration: 100ms
+        retry-exceptions:
+          - dev.pmlsp.openfinance.payments.domain.exception.HolderUnavailableException
+      holder-payment:
+        max-attempts: 2
+        wait-duration: 200ms
+        retry-exceptions:
+          - dev.pmlsp.openfinance.payments.domain.exception.HolderUnavailableException
+  circuitbreaker:
+    instances:
+      holder-consent:
+        sliding-window-size: 50
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+      holder-payment:
+        sliding-window-size: 50
+        failure-rate-threshold: 30
+        wait-duration-in-open-state: 15s
+  ratelimiter:
+    instances:
+      holder-consent:
+        limit-for-period: 200
+        limit-refresh-period: 1s
+        timeout-duration: 100ms
+
+---
+spring:
+  config:
+    activate:
+      on-profile: simulator
+
+ofpayments:
+  holder:
+    base-url: http://localhost:8082/sim

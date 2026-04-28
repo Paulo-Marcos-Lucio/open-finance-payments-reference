@@ -1,0 +1,65 @@
+### open-finance-payments-reference — REST Client requests
+### Roda na IntelliJ (HTTP Client) ou VS Code (REST Client extension)
+### Pré-req: `make run-sim` deixa app + simulator no mesmo Spring context (port 8082)
+
+@host = http://localhost:8082
+
+### 1) Cria consent (PISP-side)
+
+POST {{host}}/open-banking/payments/v1/consents
+Content-Type: application/json
+
+{
+  "loggedUser": {
+    "name": "Fulano",
+    "document": "12345678901",
+    "documentType": "CPF"
+  },
+  "creditor": {
+    "ispb": "60746948",
+    "issuer": "0001",
+    "number": "00012345-6",
+    "type": "CACC"
+  },
+  "amount": "100.00",
+  "currency": "BRL",
+  "validityMinutes": 5
+}
+
+> {% client.global.set("consentId", response.body.consentId); %}
+
+### 2) Holder simulator autoriza inline (mimic customer SCA approval)
+
+POST {{host}}/sim/holder/consents/{{consentId}}/authorise
+Content-Type: application/json
+
+{}
+
+### 3) Consulta status do consent (deve estar AUTHORISED após passo 2)
+
+GET {{host}}/open-banking/payments/v1/consents/{{consentId}}
+
+### 4) Cria payment baseado no consent autorizado
+
+POST {{host}}/open-banking/payments/v1/pix/payments
+Content-Type: application/json
+
+{
+  "consentId": "{{consentId}}",
+  "debtor": {
+    "ispb": "99988877",
+    "issuer": "0002",
+    "number": "1234567",
+    "type": "CACC"
+  }
+}
+
+> {% client.global.set("paymentId", response.body.paymentId); %}
+
+### 5) Consulta status do payment (PDNG → ACSP imediato; ACSC após settle-delay-ms)
+
+GET {{host}}/open-banking/payments/v1/pix/payments/{{paymentId}}
+
+### 6) Re-consulta consent (deve estar CONSUMED após payment ACSP)
+
+GET {{host}}/open-banking/payments/v1/consents/{{consentId}}
