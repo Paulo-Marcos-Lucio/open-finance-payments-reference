@@ -6,6 +6,44 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-04-28
+
+Sender-constrained tokens via **DPoP (RFC 9449)** end-to-end. Mock authorization server in-process emite tokens bound ao cnf.jkt do caller; resource server valida proof + thumbprint binding em cada request a endpoints PISP.
+
+### Added — Security infrastructure
+
+- `DPoPValidator` — valida proof JWT (assinatura, htm/htu/iat/jti, thumbprint binding ao access token)
+- `DPoPNonceCache` — anti-replay de jti via Caffeine (TTL 2min)
+- `AccessTokenIntrospector` — valida JWT access token contra JWK set trusted, extrai `cnf.jkt`
+- `MockAuthKeystore` + `TrustedJwkSetProvider` — geração e introspecção de signing key (in-process)
+- `DPoPProofException` com error codes `invalid_dpop_proof` / `invalid_token` (RFC 6750-style)
+
+### Added — Web facade
+
+- `DPoPAuthenticationFilter` — Spring filter que valida `Authorization: DPoP <token>` + `DPoP: <proof>`. Falha com 401 + `WWW-Authenticate: DPoP error="..."`
+- `WebSecurityConfig` agora suporta dois modos: profile `fapi` exige DPoP em `/open-banking/payments/**`; sem profile, mantém `permitAll` (back-compat com v0.1.0 IT)
+
+### Added — Mock auth server
+
+- `MockAuthTokenController` — endpoint `POST /mock-auth/token` que recebe DPoP proof e emite access token JWT bound ao thumbprint do caller. Token type `DPoP` (RFC 9449), TTL 10min, scope `payments`
+
+### Added — Tests
+
+- 8 unit tests em `DPoPValidatorTest` cobrindo proof válido, htm/htu/iat/jti malformado, signature tampered, thumbprint mismatch, canonicalization de htu
+- 3 IT em `FapiE2EIT` cobrindo (1) flow completo client→token→consent, (2) request sem headers DPoP rejeitado, (3) **token roubado + replay de outra key rejeitado**
+- `DPoPHelper` — utilitário de test gerando EC P-256 keypair + assinando DPoP proofs (mimicking real PISP client SDK)
+
+### Documentação
+
+- ADR 0006 — FAPI Advanced + DPoP (decisão, escopo entregue, trade-offs aceitos, roadmap pra `private_key_jwt`/PAR/JARM/DCR/JWS)
+
+### Roadmap explícito (v0.3.0+)
+
+- v0.3.0 — `private_key_jwt` client authentication (RFC 7523) + DCR endpoint
+- v0.4.0 — Pushed Authorization Requests (PAR) + JARM
+- v0.5.0 — JWS detached signature em payloads (RFC 7515 + cert ICP-Brasil)
+- v0.6.0 — Conformance test contra a suite oficial Open Finance Brasil
+
 ## [0.1.0] - 2026-04-28
 
 Primeira release pública. Implementação Java de referência para **Iniciador de Pagamento (PISP) do Open Finance Brasil — Fase 4**, com simulador in-process do banco detentor (autorizador) embarcado no mesmo Spring context.
