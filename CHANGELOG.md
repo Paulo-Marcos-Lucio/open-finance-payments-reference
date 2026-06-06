@@ -6,6 +6,27 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-06-06
+
+Release de manutenção: migração para **Spring Boot 4.0** (Spring Framework 7, Tomcat 11, Jakarta EE 11) e atualização geral de dependências após ~5 semanas de backlog do Dependabot. Sem mudança de comportamento — os 26 tests (22 unit + 4 IT) seguem verdes.
+
+### Changed — Migração Spring Boot 4
+
+- `spring-boot-starter-parent` **3.4.1 → 4.0.6** (Spring Framework 7, Jackson 3 default, Tomcat 11)
+- `WebSecurityConfig`: `AntPathRequestMatcher` (removido no Spring Security 7) → overload de `securityMatcher(String)` baseado em `PathPattern`
+- IT (`AbstractIntegrationIT`, `FapiE2EIT`): `RestTemplateBuilder` (movido de pacote no Boot 4) → `new RestTemplate()` direto — uso era trivial sem customização
+
+### Changed — Dependências
+
+- `nimbus-jose-jwt` **9.47 → 10.9.1** (core do DPoP RFC 9449; 8 DPoPValidatorTest + 3 FapiE2EIT revalidados)
+- `resilience4j-spring-boot3` **2.2.0** → `resilience4j-spring-boot4` **2.4.0** (módulo dedicado ao Boot 4 / Framework 7)
+- `springdoc-openapi-starter-webmvc-ui` **2.7.0 → 3.0.3** (springdoc 3.x é o que funciona no Boot 4)
+- `logstash-logback-encoder` **8.0 → 9.0**
+- `lombok` **1.18.36 → 1.18.46**
+- `archunit-junit5` **1.3.0 → 1.4.2**, `wiremock-standalone` **3.10.0 → 3.13.2**
+- `jacoco-maven-plugin` **0.8.12 → 0.8.15**
+- GitHub Actions atualizadas (grupo `actions`, 11 updates): checkout v6, setup-java v5, upload/download-artifact, codeql v4, etc.
+
 ## [0.2.0] - 2026-04-28
 
 Sender-constrained tokens via **DPoP (RFC 9449)** end-to-end. Mock authorization server in-process emite tokens bound ao cnf.jkt do caller; resource server valida proof + thumbprint binding em cada request a endpoints PISP.
@@ -115,5 +136,7 @@ Primeira release pública. Implementação Java de referência para **Iniciador 
 - Persistência durável (Postgres com partitioning)
 - Idempotency-Key em todos os POSTs
 
-[Unreleased]: https://github.com/Paulo-Marcos-Lucio/open-finance-payments-reference/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/Paulo-Marcos-Lucio/open-finance-payments-reference/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/Paulo-Marcos-Lucio/open-finance-payments-reference/compare/v0.2.0...v0.2.1
+[0.2.0]: https://github.com/Paulo-Marcos-Lucio/open-finance-payments-reference/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Paulo-Marcos-Lucio/open-finance-payments-reference/releases/tag/v0.1.0
