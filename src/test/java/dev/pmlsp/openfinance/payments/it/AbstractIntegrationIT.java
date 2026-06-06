@@ -3,7 +3,6 @@ package dev.pmlsp.openfinance.payments.it;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -23,7 +22,7 @@ public abstract class AbstractIntegrationIT {
     }
 
     protected RestTemplate http() {
-        return new RestTemplateBuilder().build();
+        return new RestTemplate();
     }
 
     protected String baseUrl() {
