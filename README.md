@@ -8,12 +8,12 @@
 > hexagonal validada por ArchUnit, observabilidade end-to-end. mTLS-ready (ICP-Brasil) e
 > roadmap para FAPI Advanced + DPoP em v0.2.0.
 >
-> Java 21 · Spring Boot 3.4 · Hexagonal · Resilience4j · OpenTelemetry · Grafana
+> Java 21 · Spring Boot 4.0 · Hexagonal · Resilience4j · OpenTelemetry · Grafana
 
 [![CI](https://github.com/Paulo-Marcos-Lucio/open-finance-payments-reference/actions/workflows/ci.yml/badge.svg)](https://github.com/Paulo-Marcos-Lucio/open-finance-payments-reference/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Java 21](https://img.shields.io/badge/Java-21-007396?logo=openjdk&logoColor=white)](https://openjdk.org/projects/jdk/21/)
-[![Spring Boot 3.4](https://img.shields.io/badge/Spring%20Boot-3.4-6DB33F?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
+[![Spring Boot 4.0](https://img.shields.io/badge/Spring%20Boot-4.0-6DB33F?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
 
 ---
 
@@ -181,9 +181,9 @@ Detalhes em [ADR 0006 — FAPI Advanced + DPoP](docs/adr/0006-fapi-dpop.md), inc
 
 | Categoria | Tests |
 |---|---|
-| Unit (incl. ArchUnit + 8 DPoPValidatorTest) | 20 |
+| Unit (incl. ArchUnit + 8 DPoPValidatorTest) | 22 |
 | Integration (E2E + FAPI E2E) | 4 |
-| **Total** | **24** |
+| **Total** | **26** |
 
 JaCoCo coverage report gerado em `target/site/jacoco/index.html` após `./mvnw verify`.
 

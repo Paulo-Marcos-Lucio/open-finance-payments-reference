@@ -10,7 +10,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 /**
  * Security configuration with two profiles:
@@ -44,7 +43,7 @@ public class WebSecurityConfig {
                                              AccessTokenIntrospector introspector,
                                              DPoPValidator dpopValidator) throws Exception {
         http
-                .securityMatcher(new AntPathRequestMatcher("/open-banking/payments/**"))
+                .securityMatcher("/open-banking/payments/**")
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.disable())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
