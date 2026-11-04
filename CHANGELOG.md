@@ -138,5 +138,3 @@ Primeira release pública. Implementação Java de referência para **Iniciador 
 
 [Unreleased]: https://github.com/Paulo-Marcos-Lucio/open-finance-payments-reference/compare/v0.2.1...HEAD
 [0.2.1]: https://github.com/Paulo-Marcos-Lucio/open-finance-payments-reference/compare/v0.2.0...v0.2.1
-[0.2.0]: https://github.com/Paulo-Marcos-Lucio/open-finance-payments-reference/compare/v0.1.0...v0.2.0
-[0.1.0]: https://github.com/Paulo-Marcos-Lucio/open-finance-payments-reference/releases/tag/v0.1.0
